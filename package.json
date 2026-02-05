@@ -1,0 +1,51 @@
+{
+  "name": "@airvend/vaas-merchant",
+  "version": "1.0.0",
+  "description": "Official Node.js SDK for Airvend VAaS Merchant - Virtual account management, settlements, and payment processing for Nigerian banks",
+  "main": "src/index.js",
+  "types": "types/index.d.ts",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src/",
+    "types/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "echo \"No tests yet\""
+  },
+  "keywords": [
+    "airvend",
+    "payant",
+    "payment",
+    "virtual-account",
+    "settlement",
+    "nigeria",
+    "providus",
+    "gtbank",
+    "globus",
+    "fcmb",
+    "stanbic",
+    "banking",
+    "fintech",
+    "sdk"
+  ],
+  "author": "Success Drame (Airvend Payment Services Limited)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dijeomah/airvend-vaas-merchant-sdk.git"
+  },
+  "homepage": "https://github.com/dijeomah/airvend-vaas-merchant-sdkreadme",
+  "bugs": {
+    "url": "https://github.com/dijeomah/airvend-vaas-merchant-sdk/issues"
+  },
+  "engines": {
+    "node": ">=12.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.4.0"
+  }
+}
