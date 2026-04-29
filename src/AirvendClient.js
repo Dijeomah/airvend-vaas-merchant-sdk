@@ -12,6 +12,8 @@ const Settlements = require('./resources/Settlements');
 const Reports = require('./resources/Reports');
 const Webhooks = require('./resources/Webhooks');
 const Auth = require('./resources/Auth');
+const Admin = require('./resources/Admin');
+const Transfers = require('./resources/Transfers');
 
 // Default API base URL
 const DEFAULT_BASE_URL = 'https://pwt.airvend.ng/api/v1';
@@ -53,6 +55,8 @@ class AirvendClient {
         this.reports = new Reports(this._httpClient);
         this.webhooks = new Webhooks(this._httpClient, this.config.secretKey);
         this.auth = new Auth(this._httpClient);
+        this.admin = new Admin(this._httpClient);
+        this.transfers = new Transfers(this._httpClient);
     }
 
     /**
@@ -70,6 +74,8 @@ class AirvendClient {
         this.reports = new Reports(this._httpClient);
         this.webhooks = new Webhooks(this._httpClient, this.config.secretKey);
         this.auth = new Auth(this._httpClient);
+        this.admin = new Admin(this._httpClient);
+        this.transfers = new Transfers(this._httpClient);
     }
 
     /**

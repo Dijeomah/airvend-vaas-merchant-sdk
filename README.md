@@ -242,6 +242,103 @@ app.post('/webhook', express.json(), (req, res) => {
 app.listen(3000);
 ```
 
+### Admin *(requires admin JWT)*
+
+```javascript
+// ── Channels ──────────────────────────────────────────────────────────────────
+const channels = await payant.admin.getChannels();
+
+await payant.admin.addChannel({
+  name: 'My Merchant',
+  email: 'merchant@example.com',
+  channelType: 'merchant',    // 'merchant' | 'tp'
+  webhookUrl: 'https://example.com/webhook',
+  feeCharge: 50,
+  feeCap: 500,
+});
+
+await payant.admin.updateChannel({ id: 'channel-id', webhookUrl: 'https://new.example.com/webhook' });
+
+await payant.admin.addSettlementAccount({
+  channelId: 'channel-id',
+  accountNumber: '0123456789',
+  bankCode: '044',
+  accountName: 'John Doe',
+});
+
+await payant.admin.addMerchantSettlementAccount({
+  channelId: 'channel-id',
+  accountNumber: '0123456789',
+  bankCode: '044',
+  accountName: 'John Doe',
+  providerId: 'globus',
+  settlementMode: 'auto',     // 'auto' | 'manual'
+});
+
+await payant.admin.addProviderFee({
+  channelId: 'channel-id',
+  providerId: 'providus',
+  feeCharge: 50,
+  feeCap: 500,
+});
+
+// ── Providers ─────────────────────────────────────────────────────────────────
+const providers = await payant.admin.getProviders();
+
+await payant.admin.addProvider({ name: 'Globus Bank', code: 'globus' });
+
+await payant.admin.updateProvider('provider-uuid', { name: 'Globus Bank Updated' });
+
+// ── Accounts (admin view) ─────────────────────────────────────────────────────
+const accounts = await payant.admin.getAccounts();
+const txns     = await payant.admin.getAccountTransactions();
+const notifs   = await payant.admin.getTransactionNotifications();
+
+await payant.admin.addAccount({ accountName: 'Jane Doe', bvn: '12345678901', phoneNumber: '08099999999' });
+await payant.admin.addAccountManually({ /* custom payload */ });
+
+// ── Settlement reports ────────────────────────────────────────────────────────
+await payant.admin.triggerSettlementReport('channel-id');
+await payant.admin.triggerAllSettlementReports();
+
+// ── Notifications ─────────────────────────────────────────────────────────────
+await payant.admin.requeueTxNotification({ notificationId: 'notif-id' });
+await payant.admin.disableDynamicAccount({ accountNumber: '1234567890', provider: 'globus' });
+```
+
+### Transfers *(requires admin JWT)*
+
+```javascript
+// Send money
+await payant.transfers.sendMoney({
+  amount: 5000,
+  accountNumber: '0123456789',
+  bankCode: '044',
+  accountName: 'John Doe',
+  narration: 'Refund',
+  reference: 'unique-ref-001',
+});
+
+// Verify a bank account before sending
+const verified = await payant.transfers.verifyAccount({
+  accountNumber: '0123456789',
+  bankCode: '044',
+});
+
+// Check transaction status
+const status = await payant.transfers.getTransactionStatus({ reference: 'unique-ref-001' });
+
+// Get supported banks list
+const banks = await payant.transfers.getBanks();
+
+// Globus-specific
+const globusVerified = await payant.transfers.globusVerifyAccount({ accountNumber: '0123456789', bankCode: '00103' });
+await payant.transfers.globusTransfer({ amount: 5000, accountNumber: '0123456789', bankCode: '00103', accountName: 'John Doe' });
+
+// Re-query a transfer
+await payant.transfers.requery({ reference: 'unique-ref-001', provider: 'globus' });
+```
+
 ### Health Check
 
 ```javascript

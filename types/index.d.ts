@@ -248,6 +248,108 @@ export declare class Auth {
     resetPassword(token: string, data: ResetPasswordData): Promise<ApiResponse>;
 }
 
+// Admin Types
+export interface ChannelData {
+    name: string;
+    email: string;
+    channelType?: 'merchant' | 'tp';
+    webhookUrl?: string;
+    feeCharge?: number;
+    feeCap?: number;
+    stampDuty?: number;
+}
+
+export interface SettlementAccountData {
+    channelId: string;
+    accountNumber: string;
+    bankCode: string;
+    accountName: string;
+}
+
+export interface MerchantSettlementAccountData extends SettlementAccountData {
+    providerId?: string;
+    settlementMode?: 'auto' | 'manual';
+}
+
+export interface ProviderFeeData {
+    channelId: string;
+    providerId: string;
+    feeCharge: number;
+    feeCap?: number;
+}
+
+export interface ProviderData {
+    name: string;
+    code: string;
+    credentials?: string;
+    prefix?: string;
+}
+
+export interface RequeueNotificationData {
+    notificationId: string;
+}
+
+// Transfer Types
+export interface SendMoneyData {
+    amount: number;
+    accountNumber: string;
+    bankCode: string;
+    accountName: string;
+    narration?: string;
+    reference?: string;
+}
+
+export interface VerifyAccountData {
+    accountNumber: string;
+    bankCode: string;
+}
+
+export interface TransactionStatusData {
+    reference: string;
+}
+
+export interface RequeryData {
+    reference: string;
+    provider?: string;
+}
+
+// Resource Classes
+export declare class Admin {
+    // Channels
+    getChannels(): Promise<ApiResponse>;
+    addChannel(data: ChannelData): Promise<ApiResponse>;
+    updateChannel(data: Partial<ChannelData> & { id: string }): Promise<ApiResponse>;
+    addSettlementAccount(data: SettlementAccountData): Promise<ApiResponse>;
+    addMerchantSettlementAccount(data: MerchantSettlementAccountData): Promise<ApiResponse>;
+    addProviderFee(data: ProviderFeeData): Promise<ApiResponse>;
+    // Providers
+    getProviders(): Promise<ApiResponse>;
+    addProvider(data: ProviderData): Promise<ApiResponse>;
+    updateProvider(uuid: string, data: Partial<ProviderData>): Promise<ApiResponse>;
+    // Accounts
+    getAccounts(): Promise<ApiResponse>;
+    getAccountTransactions(all?: string): Promise<ApiResponse>;
+    addAccount(data: CreateVirtualAccountData): Promise<ApiResponse>;
+    addAccountManually(data: object): Promise<ApiResponse>;
+    getTransactionNotifications(all?: string): Promise<ApiResponse>;
+    // Settlement reports
+    triggerSettlementReport(channelId: string | number): Promise<ApiResponse>;
+    triggerAllSettlementReports(): Promise<ApiResponse>;
+    // Notifications
+    requeueTxNotification(data: RequeueNotificationData): Promise<ApiResponse>;
+    disableDynamicAccount(data: DisableAccountData): Promise<ApiResponse>;
+}
+
+export declare class Transfers {
+    sendMoney(data: SendMoneyData): Promise<ApiResponse>;
+    verifyAccount(data: VerifyAccountData): Promise<ApiResponse>;
+    getTransactionStatus(data: TransactionStatusData): Promise<ApiResponse>;
+    getBanks(data?: object): Promise<ApiResponse>;
+    globusVerifyAccount(data: VerifyAccountData): Promise<ApiResponse>;
+    globusTransfer(data: SendMoneyData): Promise<ApiResponse>;
+    requery(data: RequeryData): Promise<ApiResponse>;
+}
+
 // Main Client Class
 export declare class AirvendClient {
     constructor(config: PayantConfig);
@@ -264,6 +366,10 @@ export declare class AirvendClient {
     webhooks: Webhooks;
     /** Auth resource */
     auth: Auth;
+    /** Admin resource (requires admin JWT) */
+    admin: Admin;
+    /** Transfers resource (requires admin JWT) */
+    transfers: Transfers;
 
     /** Update the API key */
     setApiKey(apiKey: string): void;
