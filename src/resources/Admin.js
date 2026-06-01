@@ -188,15 +188,37 @@ class Admin {
     }
 
     /**
-     * Get transactions for all accounts
-     * @param {string|number} [all] - Pass 'all' to retrieve all records
-     * @returns {Promise<Object>} Transaction list
+     * Get paginated transactions for all (or channel-scoped) accounts.
+     *
+     * @param {string}  [all='']        - Pass 'all' to bypass channel scoping
+     * @param {Object}  [options={}]
+     * @param {number}  [options.page]       - Page number (default 1)
+     * @param {number}  [options.perpage]    - Items per page (default 15)
+     * @param {string}  [options.search]     - Search by accountNumber, reference, transactionId, or originator
+     * @param {string}  [options.startDate]  - Filter from this date (YYYY-MM-DD)
+     * @param {string}  [options.endDate]    - Filter to this date inclusive (YYYY-MM-DD)
+     * @returns {Promise<Object>} Paginated transaction list
      *
      * @example
-     * const transactions = await payant.admin.getAccountTransactions('all');
+     * // All transactions, page 2
+     * await payant.admin.getAccountTransactions('all', { page: 2, perpage: 20 });
+     *
+     * // Search within a date range
+     * await payant.admin.getAccountTransactions('all', {
+     *   search: '0085611874',
+     *   startDate: '2026-01-01',
+     *   endDate: '2026-05-31',
+     * });
      */
-    async getAccountTransactions(all = '') {
-        return this.client.get(`/admin/accounts/transactions/${all}`);
+    async getAccountTransactions(all = '', options = {}) {
+        const { page, perpage, search, startDate, endDate } = options;
+        const query = {};
+        if (page)      query.page      = page;
+        if (perpage)   query.perpage   = perpage;
+        if (search)    query.search    = search;
+        if (startDate) query.startDate = startDate;
+        if (endDate)   query.endDate   = endDate;
+        return this.client.get(`/admin/accounts/transactions/${all}`, query);
     }
 
     /**
@@ -291,6 +313,34 @@ class Admin {
      */
     async disableDynamicAccount(data) {
         return this.client.post('/admin/dynamic-account/disable', data);
+    }
+
+    /**
+     * Resend webhook notification(s) to their merchant channel.
+     *
+     * Re-queues previously processed (or failed) notifications back into the
+     * channelTxNotifier queue, which POSTs the transaction payload to the
+     * channel's configured webhookUrl.
+     *
+     * Supply at least one of:
+     * @param {Object}   data
+     * @param {string[]} [data.notificationIds]       - ProviderNotification UUIDs
+     * @param {string[]} [data.transactionReferences] - Transaction reference or transactionId values
+     * @returns {Promise<Object>} Result with queued / skipped / errors breakdown
+     *
+     * @example
+     * // By notification UUID (visible in the admin notifications list)
+     * await payant.admin.resendWebhookNotification({
+     *   notificationIds: ['uuid-1', 'uuid-2']
+     * });
+     *
+     * // By transaction reference
+     * await payant.admin.resendWebhookNotification({
+     *   transactionReferences: ['TXN123456', 'TXN789012']
+     * });
+     */
+    async resendWebhookNotification(data) {
+        return this.client.post('/admin/webhook/resend', data);
     }
 }
 

@@ -28,17 +28,36 @@ class Transactions {
     }
 
     /**
-     * Get transactions for a specific account
-     * @param {string} accountNumber - The account number
-     * @param {Object} [options] - Query options
-     * @param {string} [options.reference] - Filter by reference
-     * @returns {Promise<Object>} List of transactions
+     * Get paginated transactions for a specific account.
+     *
+     * @param {string} accountNumber
+     * @param {Object}  [options={}]
+     * @param {string}  [options.reference]  - Filter by exact transaction reference
+     * @param {number}  [options.page]        - Page number (default 1)
+     * @param {number}  [options.perpage]     - Items per page (default 15)
+     * @param {string}  [options.search]      - Search by reference, transactionId, or originator
+     * @param {string}  [options.startDate]   - Filter from this date (YYYY-MM-DD)
+     * @param {string}  [options.endDate]     - Filter to this date inclusive (YYYY-MM-DD)
+     * @returns {Promise<Object>} Paginated transaction list
      *
      * @example
-     * const transactions = await payant.transactions.getByAccount('1234567890');
+     * await payant.transactions.getByAccount('1234567890', {
+     *   page: 1,
+     *   perpage: 20,
+     *   startDate: '2026-01-01',
+     *   endDate: '2026-05-31',
+     * });
      */
     async getByAccount(accountNumber, options = {}) {
-        return this.client.get(`/transactions/${accountNumber}`, options);
+        const { reference, page, perpage, search, startDate, endDate } = options;
+        const query = {};
+        if (reference)  query.reference  = reference;
+        if (page)       query.page       = page;
+        if (perpage)    query.perpage    = perpage;
+        if (search)     query.search     = search;
+        if (startDate)  query.startDate  = startDate;
+        if (endDate)    query.endDate    = endDate;
+        return this.client.get(`/transactions/${accountNumber}`, query);
     }
 
     /**

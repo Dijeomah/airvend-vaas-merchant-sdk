@@ -47,6 +47,13 @@ export interface ListOptions {
     search?: string;
 }
 
+export interface TransactionListOptions extends ListOptions {
+    /** Filter from this date (YYYY-MM-DD) */
+    startDate?: string;
+    /** Filter to this date inclusive (YYYY-MM-DD) */
+    endDate?: string;
+}
+
 export interface PaginatedResponse<T> {
     status?: string;
     message?: string;
@@ -214,7 +221,7 @@ export declare class VirtualAccounts {
 
 export declare class Transactions {
     list(options?: ListOptions): Promise<PaginatedResponse<Transaction>>;
-    getByAccount(accountNumber: string, options?: { reference?: string }): Promise<ApiResponse>;
+    getByAccount(accountNumber: string, options?: TransactionListOptions & { reference?: string }): Promise<ApiResponse>;
     getByPOS(tid: string): Promise<ApiResponse>;
     getPOSAccount(tid: string): Promise<ApiResponse>;
 }
@@ -289,6 +296,23 @@ export interface RequeueNotificationData {
     notificationId: string;
 }
 
+export interface ResendWebhookData {
+    /** ProviderNotification UUIDs from the admin notifications list */
+    notificationIds?: string[];
+    /** TransactionNotification reference or transactionId values */
+    transactionReferences?: string[];
+}
+
+export interface ResendWebhookResult {
+    status: string;
+    message: string;
+    data: {
+        queued: Array<{ notificationId?: string; transactionReference?: string; transactionId?: string }>;
+        skipped: Array<{ notificationId?: string; transactionReference?: string; reason: string }>;
+        errors: Array<{ notificationId?: string; transactionReference?: string; error: string }>;
+    };
+}
+
 // Transfer Types
 export interface SendMoneyData {
     amount: number;
@@ -328,7 +352,7 @@ export declare class Admin {
     updateProvider(uuid: string, data: Partial<ProviderData>): Promise<ApiResponse>;
     // Accounts
     getAccounts(): Promise<ApiResponse>;
-    getAccountTransactions(all?: string): Promise<ApiResponse>;
+    getAccountTransactions(all?: string, options?: TransactionListOptions): Promise<ApiResponse>;
     addAccount(data: CreateVirtualAccountData): Promise<ApiResponse>;
     addAccountManually(data: object): Promise<ApiResponse>;
     getTransactionNotifications(all?: string): Promise<ApiResponse>;
@@ -338,6 +362,7 @@ export declare class Admin {
     // Notifications
     requeueTxNotification(data: RequeueNotificationData): Promise<ApiResponse>;
     disableDynamicAccount(data: DisableAccountData): Promise<ApiResponse>;
+    resendWebhookNotification(data: ResendWebhookData): Promise<ResendWebhookResult>;
 }
 
 export declare class Transfers {
